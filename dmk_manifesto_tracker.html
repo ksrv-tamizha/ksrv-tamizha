@@ -1,0 +1,1167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DMK 2021 Manifesto Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --red: #C0392B;
+    --black: #111111;
+    --gold: #D4A017;
+    --done: #1A7A4C;
+    --done-bg: #E8F5EE;
+    --pend: #B8460B;
+    --pend-bg: #FEF0E8;
+    --cream: #FAF7F2;
+    --border: #E5DDD0;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--black);
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  header {
+    background: var(--black);
+    color: white;
+    padding: 40px 24px 32px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 6px;
+    background: linear-gradient(90deg, var(--red) 50%, var(--gold) 50%);
+  }
+  header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.6rem, 4vw, 2.8rem);
+    font-weight: 900;
+    letter-spacing: -0.5px;
+    line-height: 1.15;
+  }
+  header h1 span { color: var(--gold); }
+  header p {
+    margin-top: 10px;
+    font-size: 0.95rem;
+    color: #AAA;
+    font-weight: 300;
+  }
+
+  /* STATS BAR */
+  .stats {
+    display: flex;
+    justify-content: center;
+    gap: 0;
+    flex-wrap: wrap;
+    background: white;
+    border-bottom: 2px solid var(--border);
+    padding: 0;
+  }
+  .stat-block {
+    flex: 1 1 120px;
+    padding: 18px 16px;
+    text-align: center;
+    border-right: 1px solid var(--border);
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .stat-block:last-child { border-right: none; }
+  .stat-block:hover, .stat-block.active { background: #F5F0E8; }
+  .stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.9rem;
+    font-weight: 700;
+    line-height: 1;
+  }
+  .stat-label {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #666;
+    margin-top: 4px;
+    font-weight: 500;
+  }
+  .s-all .stat-num { color: var(--black); }
+  .s-done .stat-num { color: var(--done); }
+  .s-inc .stat-num { color: var(--pend); }
+
+  /* PROGRESS BAR */
+  .progress-wrap {
+    background: white;
+    padding: 12px 24px;
+    border-bottom: 2px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .progress-bar {
+    flex: 1;
+    height: 10px;
+    background: #EEE;
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--done), #2ECC71);
+    border-radius: 99px;
+    transition: width 0.8s ease;
+  }
+  .progress-label {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--done);
+    white-space: nowrap;
+  }
+
+  /* CONTROLS */
+  .controls {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px 20px 8px;
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .search-box {
+    flex: 1 1 260px;
+    padding: 10px 16px;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    background: white;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .search-box:focus { border-color: var(--red); }
+  .filter-btn {
+    padding: 10px 18px;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    background: white;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.15s;
+  }
+  .filter-btn:hover { border-color: #999; }
+  .filter-btn.active-all { background: var(--black); color: white; border-color: var(--black); }
+  .filter-btn.active-done { background: var(--done); color: white; border-color: var(--done); }
+  .filter-btn.active-inc { background: var(--pend); color: white; border-color: var(--pend); }
+
+  .results-count {
+    font-size: 0.82rem;
+    color: #888;
+    padding: 0 20px 12px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  /* SECTIONS */
+  .sections {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px 60px;
+  }
+
+  .section-group {
+    margin-bottom: 32px;
+  }
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--black);
+    padding: 10px 0 10px;
+    border-bottom: 2px solid var(--black);
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .section-title .sec-counts {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #888;
+  }
+
+  /* PROMISE GRID */
+  .promises-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 10px;
+  }
+
+  .promise-card {
+    background: white;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    transition: transform 0.15s, box-shadow 0.15s;
+    position: relative;
+    overflow: hidden;
+  }
+  .promise-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 4px;
+    border-radius: 10px 0 0 10px;
+  }
+  .promise-card.done::before { background: var(--done); }
+  .promise-card.incomplete::before { background: var(--pend); }
+  .promise-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.08); }
+
+  .promise-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #BBB;
+    min-width: 28px;
+    margin-top: 1px;
+  }
+  .promise-text {
+    flex: 1;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    color: #333;
+    font-weight: 400;
+  }
+  .promise-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.68rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 3px 8px;
+    border-radius: 99px;
+    white-space: nowrap;
+    margin-top: 2px;
+    flex-shrink: 0;
+  }
+  .badge-done { background: var(--done-bg); color: var(--done); }
+  .badge-inc { background: var(--pend-bg); color: var(--pend); }
+
+  .hidden { display: none !important; }
+
+  footer {
+    text-align: center;
+    padding: 20px;
+    font-size: 0.78rem;
+    color: #AAA;
+    border-top: 1px solid var(--border);
+    background: white;
+  }
+  footer span { color: var(--red); }
+
+  @media (max-width: 600px) {
+    .promises-grid { grid-template-columns: 1fr; }
+    .stat-block { flex: 1 1 80px; padding: 12px 8px; }
+    .stat-num { font-size: 1.4rem; }
+    .controls { flex-direction: column; }
+    .search-box { width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>DMK 2021 Manifesto <span>Promise Tracker</span></h1>
+  <p>All 505 promises · Status as of April 2026 · Complete = ✓, Incomplete/Partial = ✗</p>
+</header>
+
+<div class="stats">
+  <div class="stat-block s-all" onclick="filterAll(this)">
+    <div class="stat-num" id="cnt-all">505</div>
+    <div class="stat-label">Total Promises</div>
+  </div>
+  <div class="stat-block s-done" onclick="filterDone(this)">
+    <div class="stat-num" id="cnt-done">0</div>
+    <div class="stat-label">Completed</div>
+  </div>
+  <div class="stat-block s-inc" onclick="filterInc(this)">
+    <div class="stat-num" id="cnt-inc">0</div>
+    <div class="stat-label">Incomplete</div>
+  </div>
+</div>
+
+<div class="progress-wrap">
+  <div class="progress-bar"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+  <div class="progress-label" id="prog-label">0% Complete</div>
+</div>
+
+<div class="controls">
+  <input type="text" class="search-box" placeholder="Search promises..." oninput="doSearch(this.value)" id="search-input">
+  <button class="filter-btn active-all" id="btn-all" onclick="filterAll(this)">All</button>
+  <button class="filter-btn" id="btn-done" onclick="filterDone(this)">✓ Completed</button>
+  <button class="filter-btn" id="btn-inc" onclick="filterInc(this)">✗ Incomplete</button>
+</div>
+<div class="results-count" id="results-count"></div>
+
+<div class="sections" id="sections-container"></div>
+
+<footer>Data compiled from DMK 2021 Manifesto &amp; independent trackers · <span>Partial fulfillment counted as Incomplete</span></footer>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────────
+// Status: true = Complete, false = Incomplete
+// Sources: rganand.com tracker, thesouthfirst.com, The Federal, various news
+const sections = [
+{
+  title: "State Rights & Language Policy",
+  promises: [
+    [1,"Fight for restoration of lost state rights",false],
+    [2,"Remove 'Education' from Concurrent List to State List",false],
+    [3,"Formulate separate State Education Policy for Tamil Nadu",true],
+    [4,"Fight against Hindi imposition; urge official status for all state languages",false],
+    [5,"Declare Tamil as co-official language in central govt offices in TN",false],
+    [6,"Urge Central Govt to establish regional Court of Appeal branches in TN",false],
+    [7,"Revive Central Institute of Classical Tamil; urge Thirukkural as National Textbook",false],
+    [8,"Institute Tamil Chairs in International Universities",false],
+    [9,"Refurbish Semmozhi Poonga; set up parks in all Municipal Corporations",false],
+    [10,"Translate world-famous books into Tamil and vice versa",false],
+    [11,"Standardise Tamil script usage in media through legislation",false],
+    [12,"Establish separate Tamil Official Language wing in all departments",false],
+  ]
+},
+{
+  title: "Eelam Tamils & Citizenship",
+  promises: [
+    [13,"Urge Central Govt to push for independent judicial body on Sri Lanka war crimes",false],
+    [14,"Urge UN intervention for Eelam Tamil political rights and referendum",false],
+    [15,"Address welfare of Tamil refugees living in camps under 1964 Sastry-Srimavo agreement",false],
+    [16,"Urge Central Govt to grant Indian citizenship to Sri Lankan Tamil refugees",false],
+    [17,"Create Non-Resident Tamils Department in TN Govt",false],
+  ]
+},
+{
+  title: "Administrative Reforms & Governance",
+  promises: [
+    [18,"Revive Lok Ayukta to handle corruption complaints against MLAs and Ministers",false],
+    [19,"Pass Right to Services Act for streamlined public distribution of certificates and benefits",false],
+    [20,"Ensure corruption-free governance; make DVAC function efficiently",false],
+    [21,"Establish special courts for corruption cases against ADMK Ministers",false],
+    [22,"Probe Former CM Jayalalithaa's death",false],
+    [23,"Ensure transparency in District Collector, BDO, Councillor offices; mandate MLA uploads",true],
+    [24,"Cut wasteful expenditure by Ministers and Government Officials",false],
+    [25,"Constitute high-level expert committee to address TN's ~9 lakh crore debt",false],
+    [26,"Constitute expert committee to reform 83 PSUs and improve productivity",false],
+  ]
+},
+{
+  title: "Agriculture & Farmer Welfare",
+  promises: [
+    [27,"Pass resolution urging Central Govt to repeal three Central Farm Laws",true],
+    [28,"Prevent Central Govt from introducing harmful Methane and Shale gas projects in Delta",true],
+    [29,"Introduce annual Agriculture Budget in consultation with farmer associations",true],
+    [30,"Revitalise Uzhavar Sandhais and create rural markets supervised by Govt",false],
+    [31,"Create new opportunities for workers in allied agricultural activities",false],
+    [32,"Guarantee minimum price for farmers' produce via new model",false],
+    [33,"Waive farm and jewellery loans of small and medium farmers",false],
+    [34,"Set deadline for sugar mills to pay pending dues to sugarcane farmers",false],
+    [35,"Create Agricultural Development Councils; fix MSP for bananas, turmeric, dals etc.",false],
+    [36,"Create separate dept in Agriculture Ministry for organic farming",false],
+    [37,"Create 'Organic Farming Research Centre' in honour of G. Nammazhvar",false],
+    [38,"Provide input cost subsidy to farmers engaged in organic farming",false],
+    [39,"Create Horticulture Research Centre in Mannavanur, Kodaikanal",false],
+    [40,"Maintain water bodies; remove Aagaya Thamarai & Seemai Karuvelam plants",false],
+    [41,"Provide 90% subsidy to farmers for drip irrigation up to 5 acres",false],
+    [42,"Extend NREGA from 100 days to 150 days; increase daily wage to ₹300",false],
+    [43,"Stop misuse of agricultural lands without farmers' consent",false],
+    [44,"Provide immediate power connection to all pending farmer applications",false],
+    [45,"Provide ₹10,000 subsidy on electric motors to small farmers (<3 acres)",false],
+    [46,"Provide 10% one-time subsidy on agri-equipment for cooperative farming groups",false],
+    [47,"30% subsidy for goat/hen farms run by widowed/destitute women in groups",false],
+    [48,"Create Cooperative Societies for rural women; 25% subsidy for various activities",false],
+    [49,"Create Zonal Committees to advise farmers on natural calamity protection",false],
+    [50,"Create grain warehouses with drying spaces in every Panchayat Union",false],
+    [51,"Take steps to prevent human-elephant conflict deaths; increase compensation from ₹3L to ₹5L",false],
+    [52,"Strongly oppose Central Govt's genetic modification technology in TN",false],
+    [53,"Establish Horticultural University in Krishnagiri (Jeenur, 360 acres)",false],
+    [54,"Establish Agricultural University in Madurai for Southern TN",false],
+    [55,"Ensure food for mid-day meal/hostels procured exclusively from Cooperative Societies",false],
+    [56,"Special loan and tech facilities for palm jaggery producers; add to ration shop list",false],
+    [57,"Expand crop insurance to individual farmer losses and wildlife damage",false],
+    [58,"Allow farmers with ID cards to take sediment soil from ponds for free",false],
+    [59,"Establish medicinal gardens across TN; ensure adequate price for Siddha herbs",false],
+    [60,"Reopen Herbal Garden in Kavalur, Vellore",false],
+    [61,"Establish Govt cocoon markets; fix appropriate price for sericulture",false],
+    [62,"Encourage Coconut Neera production through Coconut Farmer Association",false],
+    [63,"Introduce layer farming to coconut farmers; provide subsidies for diversified farming",false],
+    [64,"Provide monetary compensation for coconut production loss due to drought and spider mite",false],
+    [65,"Establish Sub-regional Coconut Development Board center in Pollachi and Pattukottai",false],
+    [66,"Take steps to directly procure copra; distribute coconut oil through ration shops",false],
+    [67,"Establish Soil Research Institutes in Regional Agricultural offices",false],
+    [68,"Distribute palm sugar and jaggery through ration shops to encourage small producers",false],
+    [69,"Deliver agricultural inputs to villages at support price via farmer-friendly vehicles",false],
+    [70,"Use IT and Biotechnology to revolutionize farming; provide cash incentives",false],
+    [71,"Introduce Micro Watershed Management for Dry Land Farming; incentivize farmers",false],
+    [72,"Regularise non-regulated shrimp farming along coastal areas",false],
+    [73,"Revive and upgrade Agricultural College and Research Institute in Kudumiyanmalai",false],
+    [74,"Build canals and undertake desilting in Cauvery irrigation delta zone",false],
+    [75,"Increase paddy support price from ₹2000 to ₹2500/quintal; sugarcane to ₹4000",false],
+    [76,"Facilitate purchase of harvesting machinery at subsidized rates; create 500 Agri-Tech Cooperatives",false],
+    [77,"Revitalise and expand Uzhavar Santhai; introduce Mobile Marketing permits",false],
+    [78,"Provide fully subsidised paddy seed grains to farmers without assessing variety or validity",false],
+    [79,"Establish state-of-the-art Turmeric Research Institute in Erode",false],
+    [80,"Establish agricultural machinery manufacturing plant in Erode",false],
+    [81,"Provide special financial assistance for date palm tree cultivation in Tuticorin, Vellore, Karur, Dharmapuri",false],
+    [82,"Ban illegal borewells in hilly regions; establish Agro Clinics for pest and disease study",false],
+  ]
+},
+{
+  title: "Water Management",
+  promises: [
+    [83,"Expedite Cauvery-Kuntaru Link Project for drinking water and irrigation",false],
+    [84,"Renovate Kannika Sluice Gate to provide water to 40,000 acres in Nellai, Tuticorin, Virudhunagar",false],
+    [85,"Establish new Ministry for Water Resources",false],
+    [86,"Create statutory Water Management Authority; renovate water bodies, remove encroachments",false],
+    [87,"Create Commissions for Cauvery, Vaigai, Thamirabarani Riverfront management",false],
+    [88,"Convert all ground bridges to high-level bridges to prevent waterlogging",false],
+    [89,"Implement ₹10,000 crore Conservation Scheme for major lakes under CM supervision",false],
+    [90,"Construct 200 check dams at ₹2000 crore; high-level bridges in Kollidam area",false],
+    [91,"Study latest geographical landscape and design water flow modelling in streams",false],
+    [92,"Establish Chennai Metro Flood Management Committee",false],
+    [93,"Deepen city rivers and construct storm-water drainage in Chennai at ₹5000 crore",false],
+    [94,"Establish 24-hour Special Control Centers during rainy season for estuarine dynamics",false],
+    [95,"Introduce new Groundwater Act replacing repealed TN Groundwater Act 2013",false],
+    [96,"Carry out dredging and desilting in Thanjavur stone dam area",false],
+    [97,"Restore and expand Palar-Thamirabarani riverbed project",false],
+    [98,"Urge Central Govt to commence interlinking of South Indian rivers",false],
+    [99,"Commence negotiation to construct the Anamalai Dam",false],
+    [100,"Construct 15 km water tunnel from Upper Nirar Dam to Nallar-Thirumoorthy Dam",false],
+    [101,"Construct new canal from Periyar-Vaigai primary canal to Sathaiyar Dam",false],
+    [102,"Desilt and restore Pechiparai dam",false],
+    [103,"Restore Noyyal river; link Bhavani, Noyyal and Amaravathi rivers",false],
+    [104,"Construct check dam in Ottanchathiram, Thoppampatti to prevent Varada/Shanmuga water waste",false],
+    [105,"Implement Therkaaru-Gundaaru linkage project for Virudhunagar dry areas",false],
+    [106,"Complete Salem Mecheri irrigation project",false],
+    [107,"Implement Salem Thoni Maduvu scheme",false],
+    [108,"Complete Salem Saanarpatti-Moolakkadu Sambal Irrigation project",false],
+    [109,"Complete Athikadavu-Avinashi scheme for Coimbatore, Erode, Thiruppur",true],
+    [110,"Construct canals linking Krishnagiri Padedhaal lake to surrounding lakes",false],
+    [111,"Complete Aruvaal Mooku Drainage System in Cuddalore; erect sluice gates",false],
+    [112,"Complete the Sethusamudram Shipping Canal Project",false],
+    [113,"Take necessary steps to reclaim Katchatheevu for Tamil Nadu",false],
+  ]
+},
+{
+  title: "Fishermen Welfare",
+  promises: [
+    [114,"Add fishermen community as Scheduled Tribe; ensure all benefits",false],
+    [115,"Urge Centre for permanent solution to SL Army offences against Tamil fishermen; Crisis Centre",false],
+    [116,"Construct 2 lakh new houses for fishermen in coastal districts",false],
+    [117,"Urge Centre to establish National Commission for Welfare of Fishermen",false],
+    [118,"Urge Central Govt to withdraw Meena Kumari Committee recommendations",false],
+    [119,"Expedite death certificate process for fishermen on basis of association affidavit",false],
+    [120,"Hold quarterly grievance redressal meetings with Fisheries Minister and District Collector",false],
+    [121,"Establish new Fisheries Colleges and Maritime Universities",false],
+    [122,"Establish new schools in fishermen areas; improve quality in Manappadu, Alanthalai, Kallamozhi",false],
+    [123,"Increase fishing ban relief from ₹5000 to ₹8000; monsoon relief to ₹6000",false],
+    [124,"Increase subsidised diesel for motor boats from 1800L to 2000L; catamaran from 300L to 400L",false],
+    [125,"Provide loans and subsidies to fishermen cooperatives for boats, nets, search lights",false],
+    [126,"Rent tractors to fishermen at lower price for boat recovery",false],
+    [127,"Provide ice boxes to women engaged in fish selling",false],
+    [128,"Increase 20% engine subsidy for boats",false],
+    [129,"Procure 750 OBM machines yearly for Kanyakumari, Tirunelveli, Tuticorin fishermen",false],
+    [130,"Provide Fish Landing site to all fishing villages",false],
+    [131,"Provide ₹250/day compensation up to 2 years for families of missing catamaran fishermen",false],
+    [132,"Erect sea erosion barriers and bait arches along coastal areas",false],
+    [133,"Provide fishing harbors and cold storage facilities for all coastal areas",false],
+    [134,"Reconstruct fishing harbors; expand Kasimedu, Akkaraipettai, Rameshwaram",false],
+    [135,"Establish fishing boat manufacturing unit in Kulachal",false],
+    [136,"Establish seamless communication with Navy/Coast Guard for weather alerts to fishermen",false],
+  ]
+},
+{
+  title: "Handloom Weavers Welfare",
+  promises: [
+    [137,"Commence operations of Perarignar Anna Silk Park for ~25,000 weavers",false],
+    [138,"Create dedicated cooperative bank for handloom weavers with distinct identity cards",false],
+    [139,"Award saree/dhoti weaving contracts to handloom weavers; uniform contracts to powerloom weavers",false],
+    [140,"Establish procurement centers for yarn distribution to Weavers Associations",false],
+    [141,"Review schemes offering additional benefits to weavers under fabric diversification list",false],
+    [142,"Create Textile Development Commissions to promote textile industry",false],
+    [143,"Support establishment of silk yarn factories under subsidised program",false],
+    [144,"Increase subsidy for cotton/silk yarn procurement from 10% to 15%",false],
+    [145,"Increase free electricity for handloom weavers from 200 to 300 units",false],
+    [146,"Increase free electricity for Powerlooms from 750 to 1000 units",false],
+    [147,"Increase housing subsidy for handloom weavers to ₹4 lakh including urban weavers",false],
+    [148,"Reduce interest rates at Handloom Cooperative Societies from 12% to 8%",false],
+    [149,"Increase CHWSSS financial assistance from ₹1000 to ₹2000",false],
+    [150,"Ensure disbursement of discount subsidy withheld by Central and ADMK governments",false],
+  ]
+},
+{
+  title: "Labour Welfare",
+  promises: [
+    [151,"Ensure efficient functioning of 36 Unorganised Sector Welfare Boards; create new boards",false],
+    [152,"Re-implement Old Pension Scheme for Transport Employees",false],
+    [153,"Consider ad hoc and contract workers (>10 years) for permanent employment",false],
+    [154,"Withdraw all cases initiated against protesting employees",false],
+    [155,"Provide ₹10,000 subsidy to drivers from corporations/towns to buy new autos",false],
+    [156,"Provide ₹5000 relief aid to salt mine workers during monsoons",false],
+    [157,"Establish speciality hospitals for beedi workers with 50-bed capacity",false],
+    [158,"Provide equipment at subsidised cost to washermen; construct new washing centres",false],
+  ]
+},
+{
+  title: "Education – Higher & School",
+  promises: [
+    [159,"Repay graduate education loans for TN students under 30 who cannot repay within a year",false],
+    [160,"Pass legislation against NEET exam in Tamil Nadu; obtain President's assent",false],
+    [161,"Urge Centre to withdraw 15% UG/50% PG central pool allocation from TN medical colleges",false],
+    [162,"Install automatic vending machines for free sanitary napkins in govt schools and colleges",true],
+    [163,"Provide tablets with 4G/5G + 10GB data to higher secondary/college students; equip Wi-Fi",false],
+    [164,"Establish new medical colleges in districts without one",false],
+    [165,"Govt to bear fees of first-generation economically backward students in professional courses",false],
+    [166,"Provide foreign language courses in all colleges and universities",false],
+    [167,"Hold coaching classes for IIT/NIT/AIIMS/IIM entrance exams in all district HQs",false],
+    [168,"Establish coaching centres for UPSC/TN Govt/Railways/Banks exams in 6 major cities",false],
+    [169,"Provide milk to students in government and government-aided schools in the morning",true],
+    [170,"Transform TN into 100% literate state in 3 years",false],
+    [171,"Revive English research centres; hold coaching with British Council for spoken English",false],
+    [172,"Add environment and agriculture subjects in school syllabus; 3 periods for Physical Education",false],
+    [173,"Ensure linguistic minority students can learn mother tongue alongside Tamil and English",false],
+    [174,"Ensure transparency in state government school teacher transfers",false],
+    [175,"Renovate and upgrade Anna Centenary Library",false],
+    [176,"Ensure transparency in procurement of better-quality library books",false],
+    [177,"Provide jobs to TET-cleared candidates waiting since 2013; grant lifetime TET eligibility",false],
+    [178,"Provide interim jobs at regular intervals for rural area Librarians",false],
+  ]
+},
+{
+  title: "Employment",
+  promises: [
+    [179,"Give priority to first-generation graduates in government jobs",true],
+    [180,"Run coaching centres in every district for women graduates seeking employment",false],
+    [181,"Consider part-time art, music and PE teachers for permanent employment",false],
+    [182,"Renovate all district libraries; upload catalogue online; add new books to rural libraries",false],
+    [183,"Establish libraries in hometowns of notable Tamil poets",false],
+    [184,"Construct Thanmana Thalapathy Alagiri Memorial Hall in Pattukottai",false],
+    [185,"Implement scheme for 10 lakh jobs/year and 50 lakh jobs by 2025-26; establish STEP",false],
+    [186,"Pass Right to Skill Training Act for children abandoned by parents, transgender people, PWD",false],
+    [187,"Appoint 3.50 lakh youngsters to unfilled vacancies across Tamil Nadu",false],
+    [188,"Appoint 75,000 youngsters to conserve water bodies and forests; 30,000 for women",false],
+    [189,"Appoint 75,000 road workers to TNRDC for public asset supervision; 30,000 for women",false],
+    [190,"Appoint 25,000 youth as temple employees under HR&CE",false],
+    [191,"Appoint 25,000 women as community welfare workers in villages under BDOs",false],
+  ]
+},
+{
+  title: "Industrial Growth",
+  promises: [
+    [192,"Set aside ₹15,000 crore to revive pandemic-hit industries via low-interest loans",false],
+    [193,"Implement diversified industrial growth policies based on natural resources",false],
+    [194,"Establish dedicated companies like TIDCO/SIDCO to support micro/small business growth",false],
+    [195,"Create tie-ups between IT firms and higher education institutions to bridge tech gap",false],
+    [196,"Introduce legislation to reserve 75% of private sector jobs for locals",false],
+    [197,"Constitute expert committee to revive micro/small enterprises in economic distress",false],
+    [198,"Lay new power lines to industries and industrial estates",false],
+    [199,"Re-introduce single window system for industrial investments",false],
+    [200,"Establish new Ministry for Mines and Minerals; strengthen TAMIN",false],
+    [201,"Set up rubber-based products manufacturing plant in Kanyakumari for distressed workers",false],
+    [202,"TN PSUs to set goal of 15% purchases from micro/small industries",false],
+    [203,"Develop industrial corridor between Madurai and Tuticorin; extend Chennai-Thiruperumputhur to Hosur",false],
+    [204,"Offer business loans at low interest to first-generation engineering graduates",false],
+    [205,"Set up new Industrial Training Institutes in industrial cities",false],
+    [206,"TIIC to arrange ₹20L low-interest loans for 25,000 youngsters per year for startups",false],
+    [207,"Establish Indian Institute of Foundries in Coimbatore",false],
+    [208,"Expand and modernise Integrated Steel plants in Salem",false],
+    [209,"Increase low-intensity electrical power consumption limit from 150HP to 200HP",false],
+    [210,"Allow Powerloom units (20-40HP) subsidised tariff under Special Rule III A 1",false],
+    [211,"Set up Leather Parks in Dindigul, Vellore, Chennai",false],
+    [212,"Revert poultry licensing authority from DTCP back to Panchayat Union",false],
+    [213,"Develop action plan to protect fireworks industries supporting ~10 lakh families",false],
+    [214,"Set up special industrial estate in Chidambaram for gold/imitation jewellery",false],
+    [215,"Urge Centre to help set up CETPs in Tiruppur, Erode, Karur, Dindigal, Vellore, Aruppukottai",false],
+    [216,"Provide subsidised electricity for Common Effluent Treatment Plants",false],
+  ]
+},
+{
+  title: "Youth Welfare",
+  promises: [
+    [217,"Create Youth self-empowerment groups; Govt provides 25% + bank loan for 15-member groups",false],
+    [218,"Provide aid to MSMEs including fireworks, locks, silk, mixers, grinders",false],
+    [219,"Set up egg warehouses across Namakkal for refrigeration and storage",false],
+  ]
+},
+{
+  title: "Electricity",
+  promises: [
+    [220,"Increase electricity generation and distribution on wartime basis for uninterrupted supply",false],
+    [221,"Replace bimonthly electricity billing with monthly billing to ease financial burden",false],
+    [222,"Cancel ₹50 three-phase charge levied with electricity bills",false],
+    [223,"Allow electricity bill payment directly to EB official recording meter readings",false],
+    [224,"Encourage sugar factories to produce electricity; enable TANGEDCO direct purchase",false],
+    [225,"Replace traditional power at govt schools, colleges, temples, offices with solar panels",false],
+    [226,"Purchase agricultural biomass fuel power via PPP model; incentivise graduates",false],
+    [227,"Lay special power transmission lines in Thoothukudi, Tirunelveli, Kanyakumari and others",false],
+    [228,"Lay underground cables across all cities to prevent electricity theft",false],
+    [229,"Revive scheme of providing electricity to all ration cardholders in Nilgiris district",false],
+    [230,"Implement Udangudi and Cheyyur Power Projects on wartime basis",false],
+    [231,"Increase power generation by 20,000 MW through renewable energy (solar/windmills)",false],
+    [232,"Remove old private windmills; issue permissions for new windmills as per guidelines",false],
+    [233,"Ensure faster procurement of EN METER devices for solar power generation",false],
+  ]
+},
+{
+  title: "Public Distribution System",
+  promises: [
+    [234,"Provide smart card within 15 days to eligible applicants",false],
+    [235,"Provide 20 kg of high-quality rice free to ration card holders",true],
+    [236,"Bring all ration shops under a single department",false],
+    [237,"Upgrade all ration cards to smart cards; computerise PDS; display items on digital boards",false],
+    [238,"Issue ration shop items like sugar, dal, cooking oil in packets for hygiene",false],
+    [239,"Issue 3 LED bulbs at subsidised price to all card holders",false],
+    [240,"Provide additional 1 kg sugar; re-implement discontinued urad dal scheme",false],
+  ]
+},
+{
+  title: "Tourism",
+  promises: [
+    [241,"Devise Master Plan to improve tourism; develop Mahabalipuram, Courtallam, Ooty, Kodaikanal",false],
+    [242,"Restore and renovate old forts, palaces and mahals from Nayaka, Marathas, Palaiyakkarars period",false],
+  ]
+},
+{
+  title: "Women Welfare",
+  promises: [
+    [243,"Increase maternity leave for state govt women employees from 9 to 12 months",false],
+    [244,"Implement 'Women and Child Welfare Scheme' with doorstep mobile hospital services",false],
+    [245,"Create nursing/breastfeeding stations with privacy in all public places",false],
+    [246,"Raise women's reservation in government jobs from 30% to 40%",false],
+    [247,"Urge Centre to pass 33% reservation bill for women in Parliament",false],
+    [248,"Create awareness and conduct cancer screening tests for women in all govt hospitals",false],
+    [249,"Form sexual harassment committees in all factories and industries",false],
+    [250,"Provide jobs to widowed/abandoned women over 35 years according to qualification",false],
+    [251,"Create welfare board for widowed women",false],
+    [252,"Increase Dr Muthulakshmi Reddy Maternity Benefit from ₹18,000 to ₹24,000",false],
+    [253,"Construct working women's hostels in all districts",false],
+    [254,"Set up cyber police stations in all districts for cybercrimes against women",false],
+    [255,"Increase EVR Maniammaiyar poor widow's daughter marriage assistance from ₹25K to ₹30K; +8g gold",false],
+    [256,"Increase Annai Teresa orphan girl marriage assistance from ₹25K to ₹30K; +8g gold",false],
+    [257,"Increase Moovalur Ramamirtham marriage assistance from ₹25K to ₹30K; +8g gold",false],
+    [258,"Increase Dr Dharmambal Ammaiyar widow remarriage assistance from ₹25K to ₹30K",false],
+    [259,"Re-implement Anjugam Ammaiyar Intercaste Marriage Assistance scheme",false],
+    [260,"25% subsidy + loan for women SHGs manufacturing products for Govt procurement",false],
+    [261,"Interest-free ₹50,000 loans to 1 lakh women from BPL families for cottage industries",false],
+    [262,"Provide government jobs to unmarried women over 35 per qualification",false],
+    [263,"Waive cooperative society loans of women SHGs; carry out Poo Malai scheme efficiently",false],
+    [264,"Waive gold loans from cooperative societies for under 5 sovereigns; create youth SHGs",false],
+  ]
+},
+{
+  title: "Backward & Most Backward Communities",
+  promises: [
+    [265,"Urge Centre to withdraw income ceiling for backward classes",false],
+    [266,"Urge Centre to increase OBC creamy layer income ceiling to ₹25 lakh from ₹8.5 lakh",false],
+    [267,"Urge amendment enabling states to allocate reservation for MBC, SC, ST independently",false],
+    [268,"Urge Centre to strictly follow Mandal Commission recommendations (27% OBC reservation)",false],
+    [269,"Urge private sector companies to provide reservation to OBC, SC, ST communities",false],
+    [270,"Urge Central Govt to legislate reservation in appointment of High Court and SC judges",false],
+    [271,"Urge Centre to conduct full population caste census and release data",false],
+    [272,"Urge Centre to implement 27% Mandal Commission reservation in IITs and teacher appointments",false],
+    [273,"Decide request to include Viswakarma community in MBC after careful deliberation",false],
+    [274,"Introduce reservation for Viswakarma Community in Temple Board Trustees under HR&CE",false],
+  ]
+},
+{
+  title: "Adi Dravidar & Tribal Welfare",
+  promises: [
+    [275,"Revive policy to fill backlog vacancies in government jobs for Adi Dravidar and ST communities",false],
+    [276,"Provide full scholarship (tuition + hostel) to first-generation Adi Dravidar/ST women in medicine/engineering",false],
+    [277,"Strictly enforce Special Component Plan (SCP) introduced in 1980-81",false],
+    [278,"Improve hostel infrastructure for Adi Dravidar and ST communities; revise food allowance periodically",false],
+    [279,"Increase annual Education Scholarships for Adi Dravidar and ST students",false],
+    [280,"Include Nari Kuravar, Kuruvikarar, Vettaikarar, Lambadi, Badugar in ST list (15 lakh beneficiaries)",false],
+  ]
+},
+{
+  title: "Sanitation Workers' Welfare",
+  promises: [
+    [281,"Replace Open Drainage with Underground Drainage in 5 years; eradicate manual scavenging",false],
+    [282,"Provide sanitary workers one day off per week; pay OT wages for holiday work",false],
+    [283,"Compassionate appointment for children of sanitary workers who die during employment",false],
+    [284,"Provide promotion for sanitary workers who passed Grade 10 during service",false],
+    [285,"Fulfil promises on employment, salary, pension for Panchayat/Municipality/Corporation sanitary workers",false],
+  ]
+},
+{
+  title: "Welfare of Minorities",
+  promises: [
+    [286,"Urge Centre to act on Justice Ranganath Misra Committee: SC reservation for Dalit Christians",false],
+    [287,"Urge Centre to act on Sachar Committee recommendations for Muslim community",false],
+    [288,"Introduce special schemes under Education for Development for minority women",false],
+    [289,"Review requests made by Wakf Board for suitable action",false],
+  ]
+},
+{
+  title: "Persons with Disabilities",
+  promises: [
+    [290,"Constitute State Coordination Committees under PWD Act 1995; lower disability threshold to 40%",false],
+    [291,"Provide free bus transport for PWD and one accompanying person",true],
+    [292,"Issue Smart Cards for Persons with Disabilities",false],
+    [293,"Provide motorised three-wheelers for differently-abled students",false],
+    [294,"Implement 4% reservation in government employment for PWD",false],
+    [295,"Install ramps and toilet facilities for PWD in hospitals and bus stops",false],
+    [296,"Provide ITI skills development and subsidised loans for PWD self-employment",false],
+    [297,"Allot houses under Housing Scheme and Slum Clearance Board for PWD",false],
+  ]
+},
+{
+  title: "Trader's Welfare",
+  promises: [
+    [298,"Introduce ₹15,000 interest-free cooperative bank loans for vendors; cancel sandhai fees",false],
+    [299,"Not allow FDI that affects local retail businesses",true],
+    [300,"Repeal provision requiring vendors to pay 25% of proposed tax before appeal",false],
+    [301,"Introduce new rent slabs in corporation/municipality shops to ease shopkeeper burden",false],
+    [302,"Make Traders Welfare Board more efficient; enroll more members",false],
+    [303,"Re-include 21 enterprises like matchbox making, fireworks in MSME list",false],
+    [304,"Create Trade Centres in Madurai, Tuticorin, Tiruppur, Erode",false],
+    [305,"Declare deteriorating enterprises like salt production, silver anklets as cottage industries",false],
+    [306,"Declare wick production for fireworks as cottage industry with safety measures",false],
+    [307,"Take efforts to ban sale of imported fireworks in TN",false],
+  ]
+},
+{
+  title: "Teachers & Government Employees Welfare",
+  promises: [
+    [308,"Provide 10% pension hike from age 70 and additional 10% from 80 (revised from 80 only)",false],
+    [309,"Re-implement Old Pension Scheme replacing New Pension Scheme",false],
+    [310,"Reform Joint Committee of General Secretary/Department Secretary and State Administrative Tribunal",false],
+    [311,"Provide periodic pay for 20,000 teachers with ₹8000 basic pay; incentives for higher education",false],
+    [312,"Relieve teachers booked under Section 17B in terms of salary hikes and promotions",false],
+    [313,"Ensure appointment and periodic pay for Anganwadi and Midday Meal Workers; minimum pension/gratuity",false],
+    [314,"Raise compensation for families of government servants/teachers who die in service from ₹3L to ₹5L",false],
+    [315,"Compassionate employment + ₹5 lakh welfare fund for families of govt servants fired by ADMK",false],
+    [316,"Count 50% part-time work of ad hoc school education employees for pension calculation",false],
+    [317,"Address grievances of TN Khadi Board workers, Mosquito Control Supervisors, etc.",false],
+    [318,"Revise New Medical Insurance Scheme with higher spending limits for in-patient and surgery",false],
+    [319,"Increase temple employee pension to ₹5000; consider Pongal bonus for retirees",false],
+  ]
+},
+{
+  title: "Welfare of Transgender People",
+  promises: [
+    [320,"Increase assistance for transgender people from ₹1000 to ₹1500",false],
+    [321,"Slum Clearance Board to allot houses to transgender people on need basis",false],
+  ]
+},
+{
+  title: "Senior Citizens & Children",
+  promises: [
+    [322,"Increase senior citizen assistance to ₹1500 with assured delivery via postal department",true],
+    [323,"Create senior citizen centres in all district HQs with food, shelter, clothing via NGOs",false],
+    [324,"Maintain separate queue for senior citizens in HR&CE temples during morning and evening",false],
+    [325,"Create geriatric wards with advanced facilities in all government hospitals",false],
+    [326,"Ensure strict trials and punishment for child trafficking",false],
+    [327,"Implement infant welfare and Food Basket Scheme for malnourished infants",false],
+    [328,"Completely ban female foeticide with severe legal action",false],
+    [329,"Enforce Child Labour (Prohibition and Regulation) Act; focus on education of children",false],
+  ]
+},
+{
+  title: "Social Security & Public Welfare",
+  promises: [
+    [330,"Raise social security assistance from ₹1000 to ₹1500 for senior women, widows, PWD, refugees",true],
+    [331,"Start Kalaignar Canteens in 500 locations for subsidised food for the poor",false],
+    [332,"Ensure 2.5% reservation for government-aided school students in medical colleges",false],
+    [333,"Establish Night Shelter Houses for homeless people sleeping on roadsides",false],
+    [334,"Enable students to obtain caste and income certificates from their schools",false],
+    [335,"Constitute high-level committee to eradicate illegal Katta Panchayat system",false],
+    [336,"Consider public requests on internal reservation and community name changes per Dravidian ideals",false],
+  ]
+},
+{
+  title: "Journalists & Media Persons",
+  promises: [
+    [337,"Create Commission to enforce Justice Majithia Commission recommendations for journalists",false],
+    [338,"Review and substantially increase pension scheme for journalists",false],
+    [339,"Provide due compensation for injury or property damage during employment",false],
+    [340,"Award ₹5 lakh employees' compensation for death",false],
+    [341,"Allot residential plots for journalists in Madurai, Trichy, Kovai, Salem, Nellai",false],
+    [342,"Withdraw false cases against journalists in last 5 years",false],
+  ]
+},
+{
+  title: "Healthcare",
+  promises: [
+    [343,"Provide Corona death compensation to families of doctors, nurses, health workers, police",true],
+    [344,"Improve standards of District Hospitals including scan, lab, cancer, dialysis, blood transfusion",false],
+    [345,"Urge Centre to set up ESI Hospitals in Tiruppur and Erode",false],
+    [346,"Establish physiotherapy centers in every ward-level hospital",false],
+    [347,"Revive Kalaignar Kaapeetu Thittam; provide 100% healthcare insurance for heart, cancer, kidney",true],
+    [348,"Establish advanced speciality hospitals in Kovai, Nellai, Trichy, Krishnagiri within 3 years",false],
+    [349,"Introduce mobile hospitals; increase 108 ambulances to 2000; 6 per Panchayat Union",false],
+    [350,"Set up medical emergency center every 50 km along District Highways",false],
+    [351,"Establish multipurpose hospitals in hill stations like Nilgiris, Kodai, Yercaud, Yelagiri",false],
+    [352,"Set up dedicated diabetes and blood pressure wings in every government hospital",false],
+    [353,"Administer Rotavirus, meningococcal, hepatitis vaccines free to all newborns",false],
+    [354,"Set up 3 modern hospitals in Tambaram, Sholinganallur, Maduravoyal",false],
+    [355,"Equip district hospitals to perform heart surgeries after Chennai and Madurai",false],
+    [356,"Fill job vacancies in government hospitals; regularise contract workers",false],
+    [357,"Introduce Para Medical Courses for growing paramedic demand",false],
+    [358,"Improve immunisation program to reach 100% coverage from current 56%",false],
+    [359,"Provide government recognition for AYUSH and acupuncture practitioners",false],
+    [360,"Establish De-Addiction Centers; introduce alcohol prohibition in phases",false],
+  ]
+},
+{
+  title: "Environment",
+  promises: [
+    [361,"Clean Buckingham Canal, Adyar, Cooum, Mambalam and Captain Cotton rivers in Chennai",false],
+    [362,"Introduce Tamil Nadu Conservation Project to clean Cauvery, Vaigai, Tamirabarani etc.",false],
+    [363,"Amend TN Damage to Public Property Act to punish violators using environmental hazards",false],
+    [364,"Set up Ornithology Centers in selected bird sanctuaries",false],
+    [365,"Plant trees across the state to reduce pollution and improve environment",false],
+    [366,"Introduce CNG-run buses in all towns and corporation areas",false],
+    [367,"Implement forest restoration program; increase forest cover to 33%",false],
+    [368,"Set up Forest Commission to preserve forest lands; introduce Forestry courses in colleges",false],
+  ]
+},
+{
+  title: "Sports",
+  promises: [
+    [369,"Establish Olympic Academy in four zones in TN with specialised training and incentives",false],
+    [370,"Establish a grand Games Village in Chennai for high-quality training",false],
+    [371,"Implement proper reservation for sportspersons in govt jobs; add Silambam to list",false],
+    [372,"Provide government jobs and pension to medal/trophy-winning athletes",false],
+    [373,"Provide ₹1000 monthly assistance to those raising Jallikattu bulls",false],
+  ]
+},
+{
+  title: "Legislative Assembly & Governance",
+  promises: [
+    [374,"Initiate legal action to re-constitute the Legislative Council in TN",false],
+    [375,"Telecast TN Legislative Assembly proceedings live",true],
+    [376,"Ensure Legislative Assembly is convened for at least 100 days",false],
+    [377,"Resolve all 'Ungal Thogudhiyil Stalin' complaints within 100 days; create dedicated dept",true],
+    [378,"Hold grievance hearing meetings in all Assembly Constituencies",false],
+    [379,"Re-align IAS and IPS officers for effective governance",false],
+    [380,"Form executive committee to create new districts; upgrade towns to municipal corporations",false],
+    [381,"Upgrade Kanchipuram, Tambaram, Cuddalore, Kumbakonam and others to municipal corporations",false],
+  ]
+},
+{
+  title: "Police Department",
+  promises: [
+    [382,"Provide 1-day holiday to all police personnel",false],
+    [383,"Provide free medical treatment for injured police; ₹1 crore compensation for death",false],
+    [384,"Reconstitute Police Commission; implement its recommendations",false],
+    [385,"Create grievance redressal mechanism for police personnel at district and state level",false],
+    [386,"Withdraw small punishments given to police personnel; streamline promotion cycles",false],
+    [387,"Fill police vacancies annually; provide compassionate employment without delay",false],
+    [388,"Increase Medical and Accident Relief Assistance for police personnel",false],
+    [389,"Streamline promotion timelines: HC within 10 years, SSI within 20 years",false],
+    [390,"Increase work period and appointment of Home Guards",false],
+  ]
+},
+{
+  title: "Urban Development & Drinking Water",
+  promises: [
+    [391,"Create multi-level vehicle parking in cities like Chennai",false],
+    [392,"Create Auto Nagars in Salem, Trichy, Tiruchengode, Perunthurai, Sanagiri etc.",false],
+    [393,"Create suburban areas with modern amenities near Chennai, Madurai, Coimbatore, Trichy, Salem, Tirunelveli",false],
+    [394,"Install new drinking water pipes in Chennai corporations to prevent lorry transport accidents",false],
+    [395,"Replace old pipes and ensure good quality drinking water in all villages",false],
+    [396,"Complete Naripaiyur water desalination plant; extend to other coastal areas",false],
+    [397,"Provide drinking water connection within 15 days in town panchayats, municipalities, corporations",false],
+  ]
+},
+{
+  title: "Housing",
+  promises: [
+    [398,"Provide ₹4 lakh subsidy for concrete houses in rural areas",false],
+    [399,"Issue sale deeds to beneficiaries of TN Housing Board and Slum Clearance Board hire-purchase",false],
+    [400,"Regularise Samathuvapuram scheme; ensure its social goals of harmony and anti-caste discrimination",false],
+    [401,"Refurbish dilapidated house buildings over 15 years old under various housing schemes",false],
+    [402,"Issue Patta for Grama Natham and urban lands subject to legal obligations",false],
+  ]
+},
+{
+  title: "Dairy & Agriculture Support",
+  promises: [
+    [403,"Create separate Commission for Aavin milk procurement and distribution price regulation",false],
+    [404,"Organise workshops for dairy cooperatives; upgrade Aavin technology for more milk production",false],
+  ]
+},
+{
+  title: "Hindu Religious & Charitable Endowments",
+  promises: [
+    [405,"Install cable car (winch lines) at Thiruthani, Sholingar, Thiruneermalai, Trichy Malaikottai, Tiruchenkodu",false],
+    [406,"Provide ₹2000/month to registered priests; increase retiree pension from ₹3000 to ₹4000",false],
+    [407,"Convert Thiruvannamalai girivalam into concrete path; plant trees along route",false],
+    [408,"Convert Thiruvannamalai Therottam streets into concrete roads",false],
+    [409,"Convert overhead power lines in Thiruvannamalai to underground for Therottam safety",false],
+    [410,"Plant trees along both sides of Thiruvannamalai hill",false],
+    [411,"Carry out periodic desilting in temple ponds across the state",false],
+    [412,"Renovate and refurbish historic and ancient temples",true],
+    [413,"Expand the practice of Tamil archanai in temples",false],
+    [414,"Constitute high-level statutory advisory committee for Hindu temples",false],
+    [415,"Allocate ₹1000 crore for temple consecration and festivities",true],
+    [416,"Regularise part-time and contract HR&CE workers; make them permanent with wages",false],
+    [417,"Appoint 205 trained Tamil archagars waiting to become temple priests",false],
+    [418,"Provide pilgrimage subsidies up to ₹25,000 for 25 beneficiaries per temple (8 temples)",false],
+    [419,"Establish Vallalar International Center in Vadalur",false],
+    [420,"Allocate ₹200 crore for renovation of Mosques and Churches",false],
+    [421,"Set up new bus stations and accommodation in major pilgrimage cities",false],
+  ]
+},
+{
+  title: "Harbor & Transportation",
+  promises: [
+    [422,"Urge Centre to approve Chennai Port-Thiruvottriyur seabridge project",false],
+    [423,"Mandate GPS tracking and helplines in public and private buses",false],
+    [424,"Provide ropeway services between Pazhani and Kodaikanal to promote tourism",false],
+    [425,"Upgrade bus stations in Corporation and Municipality limits with better facilities for women",false],
+    [426,"Restore minibus project to original purpose and expand scope",false],
+    [427,"Implement 2018 committee recommendations; revise bus fares",false],
+    [428,"Update Medical Insurance to cover accidents involving govt buses",false],
+    [429,"Expedite Vikravandi-Kumbakonam-Thanjavur 4-lane highway project",false],
+    [430,"Convert 2-lane roads to 4-lane and 4-lane to 6-lane roads",false],
+    [431,"Construct bypass roads to reduce traffic congestion",false],
+    [432,"Construct elevated highways in Chennai, Kovai, Madurai, Trichy, Nellai",false],
+    [433,"Complete Chennai-Kanyakumari East Coast Road project",false],
+    [434,"Urge Centre to approve pending 6-lane highway project between Chennai-Kanyakumari",false],
+    [435,"Establish integrated bus stands with bypass road connections in major cities",false],
+    [436,"Complete pending flyovers and bridges in Chennai",false],
+    [437,"Lay speed/express train route between Thiruvanmiyur and Mahabalipuram",false],
+    [438,"Restore Buckingham Canal for inland transportation between Ennore-Central and Mahabalipuram",false],
+    [439,"Establish new bus stand near Siruseri for inter-district luxury bus service",false],
+    [440,"Create new freight rail lane connecting Vijayawada, Ennore, Tuticorin, Chennai harbors",false],
+    [441,"Urge Centre to approve broad gauge rail track between Dindigul-Cumbum-Koodalur",false],
+    [442,"Lay 15 new broad gauge rail tracks across various districts of TN",false],
+    [443,"Urge Centre to resume and complete second unit of ICF manufacturing company",false],
+    [444,"Construct footover bridges with warning devices at unmanned level crossings",false],
+    [445,"Implement new metro lines in Chennai; introduce MRTS for Madurai, Trichy, Salem, Tirunelveli",false],
+    [446,"Subsidised metro rail fare for students",false],
+    [447,"Urge Centre to declare Madurai airport International; expand Salem and Tuticorin airports",false],
+    [448,"Urge Centre to set up new airports in Vellore, Karur, Hosur, Ramanathapuram",false],
+  ]
+},
+{
+  title: "Art, Culture & Archaeology",
+  promises: [
+    [449,"Set up Museum of Tamil History and Culture in Sivagangai",false],
+    [450,"Feature folk arts in government events; include in school syllabus; hold annual festival",false],
+    [451,"Issue identity cards and pensions to 60% of welfare board folk artists neglected by ADMK",false],
+    [452,"Celebrate Pongal as folk arts and sports extravaganza in all districts",false],
+    [453,"Construct Dravidian Movement Dheerargal Kottam in Chennai",false],
+    [454,"Erect statues of Pollan and Kuyili in Erode and Sivagangai",false],
+    [455,"Erect statues of Veerapandiya Kattabomman and Marudhu Brothers in Chennai",false],
+    [456,"Construct memorial hall for P. Subbarayan in Namakkal",false],
+    [457,"Erect statue of Vedhanayagam Pillai (first Tamil novel author) in Mayiladuthurai",false],
+    [458,"Construct museums for Keezhadi, Adichanallur, Korkai archaeological artifacts",false],
+    [459,"Reclaim and restore inscriptions from Indian Archaeological Survey office in Mysore",false],
+  ]
+},
+{
+  title: "Disaster Management & Rural Development",
+  promises: [
+    [460,"Use IT (SMS/TV) to inform public about storms and floods",false],
+    [461,"Provide generator facilities to police stations, hospitals, revenue offices during floods",false],
+    [462,"Run Govt scheme to train NGOs and volunteers in disaster management skills",false],
+    [463,"Build toilet facilities in rural areas; maintain common toilets in kutcha house areas",false],
+    [464,"Create Tamil Nadu Rural Development Fund; prioritise rural development",false],
+    [465,"Provide skill training to rural youth in plumber/electrician jobs; train on Foot-and-mouth disease",false],
+    [466,"Provide basic facilities to remote villages, hamlets, and mountain villages",false],
+    [467,"Re-implement Anna Marumalarchi Scheme and Namakku Naame scheme; create infrastructure SHGs",false],
+    [468,"List construction materials as essential items at fair price",false],
+    [469,"Set fair guideline values for houses and plots by Registration Department",false],
+    [470,"Grant construction permissions within 60 days via single window; mandate solar/ramps/rainwater harvesting",false],
+    [471,"Form expert committee to study professional council for civil engineers",false],
+    [472,"Simplify approval mechanism for construction of houses in own land",false],
+  ]
+},
+{
+  title: "Judiciary & Ex-Army Personnel",
+  promises: [
+    [473,"Increase welfare fund for lawyers from ₹7 lakh to ₹10 lakh",false],
+    [474,"Construct office rooms for lawyers in district courts",false],
+    [475,"Form separate court for sexual crimes against women for faster justice",false],
+    [476,"Maintain confidentiality of sexual crime victims; create separate investigation sections",false],
+    [477,"Create committee for welfare of ex-army personnel; give priority in eligible jobs",false],
+  ]
+},
+{
+  title: "Cattle Welfare & CCTV",
+  promises: [
+    [478,"Create Veterinary hospitals with Blue Cross ambulance service",false],
+    [479,"Run veterinary camps in all village panchayats",false],
+    [480,"Pay due compensation for cattle killed in road accidents",false],
+    [481,"Conserve indigenous TN animal breeds: Rajapalayam, Chippiparai, Kombai, Kangayam Bulls",false],
+    [482,"Issue health cards for pet animals and other animals including cattle, goats",false],
+    [483,"Install CCTV in public places including schools, hospitals, bus stands, police stations, temples",false],
+    [484,"Withdraw false cases against protesters of Sterlite, Hydrocarbon, Methane, Kudankulam projects",false],
+    [485,"Form executive committee to probe TNPSC recruitment malpractices",false],
+    [486,"Ensure transparency in recruitment under TNPSC and Teachers Recruitment Board",false],
+    [487,"Not hike property tax until economy fully recovers from COVID-19",true],
+    [488,"Oppose privatisation of Railways",true],
+    [489,"Urge Centre to drop plans for banking sector privatisation",true],
+    [490,"Oppose privatisation of LIC",true],
+  ]
+},
+{
+  title: "Final Promises (491–505)",
+  promises: [
+    [491,"Create Ministry for New Schemes Implementation; 100-day review mechanism with press briefing",true],
+    [492,"Grant approval to religious institutions to construct religious centres in own lands",true],
+    [493,"Pass legislation ensuring Tamil is taught in all schools including Kendriya Vidyalayas",false],
+    [494,"Take all necessary action to release 7 convicts in Rajiv Gandhi Murder Case",true],
+    [495,"Allocate 100% of government and public sector jobs to youth from Tamil Nadu",false],
+    [496,"Establish new universities in Kanchipuram and Erode",false],
+    [497,"Provide free bus service to senior citizens (above 70 years) within Tamil Nadu",true],
+    [498,"Urge Central Govt to include Sri Lanka in 2019 Citizenship Act amendment",false],
+    [499,"Lay new LNG pipelines from Ennore to power houses for 2000 MW generation",false],
+    [500,"Urge Centre to include Sri Lanka as 4th nation under 2019 Citizenship Act for Sri Lankan refugees",false],
+    [501,"Provide free bus fare to women in town buses across the state",true],
+    [502,"Provide ₹4000 cash stimulus to every ration card holder from June 2021",true],
+    [503,"Provide ₹100 subsidy on cooking gas cylinders to ration card holders",false],
+    [504,"Reduce petrol by ₹5 and diesel by ₹4 per litre",false],
+    [505,"Reduce Aavin milk price per litre from ₹6 to ₹3",false],
+  ]
+}
+];
+
+// ── BUILD DOM ─────────────────────────────────────────────────────────────────
+let currentFilter = 'all';
+let currentSearch = '';
+
+function buildPage() {
+  const container = document.getElementById('sections-container');
+  container.innerHTML = '';
+
+  let totalDone = 0, totalInc = 0, total = 0;
+
+  sections.forEach(sec => {
+    sec.promises.forEach(p => {
+      total++;
+      if (p[2]) totalDone++; else totalInc++;
+    });
+  });
+
+  document.getElementById('cnt-all').textContent = total;
+  document.getElementById('cnt-done').textContent = totalDone;
+  document.getElementById('cnt-inc').textContent = totalInc;
+  const pct = Math.round((totalDone / total) * 100);
+  document.getElementById('prog-fill').style.width = pct + '%';
+  document.getElementById('prog-label').textContent = pct + '% Complete';
+
+  sections.forEach(sec => {
+    const group = document.createElement('div');
+    group.className = 'section-group';
+    group.dataset.section = sec.title;
+
+    const secDone = sec.promises.filter(p => p[2]).length;
+    const secTotal = sec.promises.length;
+
+    const titleEl = document.createElement('div');
+    titleEl.className = 'section-title';
+    titleEl.innerHTML = `${sec.title} <span class="sec-counts">${secDone}/${secTotal} done</span>`;
+    group.appendChild(titleEl);
+
+    const grid = document.createElement('div');
+    grid.className = 'promises-grid';
+
+    sec.promises.forEach(p => {
+      const [num, text, done] = p;
+      const card = document.createElement('div');
+      card.className = 'promise-card ' + (done ? 'done' : 'incomplete');
+      card.dataset.num = num;
+      card.dataset.text = text.toLowerCase();
+      card.dataset.status = done ? 'done' : 'incomplete';
+
+      card.innerHTML = `
+        <span class="promise-num">#${num}</span>
+        <div>
+          <div class="promise-text">${text}</div>
+          <span class="promise-badge ${done ? 'badge-done' : 'badge-inc'}">${done ? '✓ Complete' : '✗ Incomplete'}</span>
+        </div>`;
+      grid.appendChild(card);
+    });
+
+    group.appendChild(grid);
+    container.appendChild(group);
+  });
+
+  applyFilters();
+}
+
+function applyFilters() {
+  const query = currentSearch.toLowerCase();
+  let visible = 0;
+
+  document.querySelectorAll('.section-group').forEach(grp => {
+    let secVisible = 0;
+    grp.querySelectorAll('.promise-card').forEach(card => {
+      const statusMatch = currentFilter === 'all' || card.dataset.status === currentFilter;
+      const textMatch = !query || card.dataset.text.includes(query) || card.dataset.num === query;
+      const show = statusMatch && textMatch;
+      card.classList.toggle('hidden', !show);
+      if (show) { secVisible++; visible++; }
+    });
+    grp.classList.toggle('hidden', secVisible === 0);
+  });
+
+  const total = document.querySelectorAll('.promise-card:not(.hidden)').length;
+  const rc = document.getElementById('results-count');
+  if (query || currentFilter !== 'all') {
+    rc.textContent = `Showing ${total} promise${total !== 1 ? 's' : ''}`;
+  } else {
+    rc.textContent = '';
+  }
+}
+
+function filterAll(el) {
+  currentFilter = 'all';
+  document.getElementById('btn-all').className = 'filter-btn active-all';
+  document.getElementById('btn-done').className = 'filter-btn';
+  document.getElementById('btn-inc').className = 'filter-btn';
+  applyFilters();
+}
+function filterDone(el) {
+  currentFilter = 'done';
+  document.getElementById('btn-all').className = 'filter-btn';
+  document.getElementById('btn-done').className = 'filter-btn active-done';
+  document.getElementById('btn-inc').className = 'filter-btn';
+  applyFilters();
+}
+function filterInc(el) {
+  currentFilter = 'incomplete';
+  document.getElementById('btn-all').className = 'filter-btn';
+  document.getElementById('btn-done').className = 'filter-btn';
+  document.getElementById('btn-inc').className = 'filter-btn active-inc';
+  applyFilters();
+}
+function doSearch(val) {
+  currentSearch = val;
+  applyFilters();
+}
+
+buildPage();
+</script>
+</body>
+</html>
